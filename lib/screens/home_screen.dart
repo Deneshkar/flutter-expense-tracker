@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../services/expense_service.dart';
+import '../theme/app_theme.dart';
 import '../widgets/category_chart.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/error_state.dart';
@@ -24,6 +25,7 @@ class HomeScreen extends StatefulWidget {
   final VoidCallback? onNavigateToExpenses;
   final VoidCallback? onNavigateToAddExpense;
   final Function(Expense)? onEditExpense;
+  final VoidCallback? onToggleTheme;
 
   const HomeScreen({
     super.key,
@@ -31,6 +33,7 @@ class HomeScreen extends StatefulWidget {
     this.onNavigateToExpenses,
     this.onNavigateToAddExpense,
     this.onEditExpense,
+    this.onToggleTheme,
   });
 
   @override
@@ -218,6 +221,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
+            tooltip: Theme.of(context).brightness == Brightness.dark
+                ? 'Switch to Light Mode'
+                : 'Switch to Dark Mode',
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode_rounded
+                  : Icons.dark_mode_rounded,
+            ),
+            onPressed: widget.onToggleTheme ?? AppTheme.toggleTheme,
+          ),
+          IconButton(
             tooltip: 'All Expenses',
             icon: const Icon(Icons.history_rounded),
             onPressed: _navigateToExpenses,
@@ -285,12 +299,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Recent Expenses',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     if (monthExpenses.length > 5)
@@ -367,12 +381,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Month selector with previous/next buttons and clickable month title.
   Widget _buildMonthSelector(String formattedMonth) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -397,10 +415,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     formattedMonth,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F172A),
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 ],

@@ -63,10 +63,10 @@ class ExpenseCard extends StatelessWidget {
                       expense.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F172A),
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -76,7 +76,7 @@ class ExpenseCard extends StatelessWidget {
                           expense.category,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey.shade600,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -85,7 +85,10 @@ class ExpenseCard extends StatelessWidget {
                           '•',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade400,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant
+                                .withValues(alpha: 0.6),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -93,7 +96,10 @@ class ExpenseCard extends StatelessWidget {
                           formattedDate,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade500,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant
+                                .withValues(alpha: 0.8),
                           ),
                         ),
                       ],
@@ -108,10 +114,10 @@ class ExpenseCard extends StatelessWidget {
                 children: [
                   Text(
                     formatAmount(expense.amount),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   if (expense.note.isNotEmpty) ...[

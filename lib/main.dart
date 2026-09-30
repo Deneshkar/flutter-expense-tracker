@@ -20,16 +20,37 @@ Future<void> main() async {
 
 class SpendlyApp extends StatelessWidget {
   final ExpenseService? expenseService;
+  final ValueNotifier<ThemeMode>? themeNotifier;
 
-  const SpendlyApp({super.key, this.expenseService});
+  const SpendlyApp({
+    super.key,
+    this.expenseService,
+    this.themeNotifier,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Spendly — Expense Tracker',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: HomeScreen(expenseService: expenseService),
+    final notifier = themeNotifier ?? AppTheme.themeNotifier;
+
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: notifier,
+      builder: (context, currentMode, _) {
+        return MaterialApp(
+          title: 'Spendly — Expense Tracker',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: currentMode,
+          home: HomeScreen(
+            expenseService: expenseService,
+            onToggleTheme: () {
+              notifier.value = notifier.value == ThemeMode.dark
+                  ? ThemeMode.light
+                  : ThemeMode.dark;
+            },
+          ),
+        );
+      },
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../services/expense_service.dart';
+import '../theme/app_theme.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/error_state.dart';
 import '../widgets/expense_card.dart';
@@ -14,11 +15,13 @@ import 'edit_expense_screen.dart';
 class ExpensesScreen extends StatefulWidget {
   final ExpenseService? expenseService;
   final Function(Expense)? onEditExpense;
+  final VoidCallback? onToggleTheme;
 
   const ExpensesScreen({
     super.key,
     this.expenseService,
     this.onEditExpense,
+    this.onToggleTheme,
   });
 
   @override
@@ -176,6 +179,17 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       appBar: AppBar(
         title: const Text('All Expenses'),
         actions: [
+          IconButton(
+            tooltip: Theme.of(context).brightness == Brightness.dark
+                ? 'Switch to Light Mode'
+                : 'Switch to Dark Mode',
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode_rounded
+                  : Icons.dark_mode_rounded,
+            ),
+            onPressed: widget.onToggleTheme ?? AppTheme.toggleTheme,
+          ),
           if (hasActiveFilter)
             TextButton.icon(
               onPressed: _clearFilters,
@@ -272,10 +286,14 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                                 ),
                                 margin: const EdgeInsets.only(bottom: 16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(14),
-                                  border:
-                                      Border.all(color: Colors.grey.shade200),
+                                  border: Border.all(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant
+                                        .withValues(alpha: 0.5),
+                                  ),
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
@@ -363,9 +381,11 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   Widget _buildFilterBar() {
     final categories = ['All', ...ExpenseCategory.all];
     final dateFormat = DateFormat('dd MMM yyyy');
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      color: Colors.white,
+      color: theme.colorScheme.surface,
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,19 +413,27 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 filled: true,
-                fillColor: Colors.grey.shade100,
+                fillColor: isDark
+                    ? const Color(0xFF1E293B)
+                    : Colors.grey.shade100,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(
+                    color: theme.colorScheme.outlineVariant,
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(
+                    color: theme.colorScheme.outlineVariant,
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide:
-                      const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+                  borderSide: BorderSide(
+                    color: theme.colorScheme.primary,
+                    width: 1.5,
+                  ),
                 ),
               ),
               onChanged: (val) {
@@ -444,15 +472,17 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   labelStyle: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    color: isSelected ? Colors.white : const Color(0xFF0F172A),
+                    color: isSelected ? Colors.white : theme.colorScheme.onSurface,
                   ),
                   selected: isSelected,
                   selectedColor: color,
                   checkmarkColor: Colors.white,
                   showCheckmark: false,
-                  backgroundColor: Colors.grey.shade100,
+                  backgroundColor: isDark
+                      ? const Color(0xFF1E293B)
+                      : Colors.grey.shade100,
                   side: BorderSide(
-                    color: isSelected ? color : Colors.grey.shade300,
+                    color: isSelected ? color : theme.colorScheme.outlineVariant,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -478,8 +508,8 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                     Icons.calendar_today_rounded,
                     size: 14,
                     color: _selectedDate != null
-                        ? const Color(0xFF2563EB)
-                        : Colors.grey.shade600,
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
                   ),
                   label: Text(
                     _selectedDate != null
@@ -491,17 +521,19 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                           ? FontWeight.bold
                           : FontWeight.normal,
                       color: _selectedDate != null
-                          ? const Color(0xFF2563EB)
-                          : const Color(0xFF0F172A),
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface,
                     ),
                   ),
                   backgroundColor: _selectedDate != null
-                      ? const Color(0xFF2563EB).withValues(alpha: 0.1)
-                      : Colors.grey.shade100,
+                      ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                      : (isDark
+                          ? const Color(0xFF1E293B)
+                          : Colors.grey.shade100),
                   side: BorderSide(
                     color: _selectedDate != null
-                        ? const Color(0xFF2563EB)
-                        : Colors.grey.shade300,
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.outlineVariant,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
