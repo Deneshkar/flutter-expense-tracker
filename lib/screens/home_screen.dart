@@ -5,6 +5,7 @@ import '../services/expense_service.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expense_card.dart';
 import 'add_expense_screen.dart';
+import 'expenses_screen.dart';
 
 /// The primary Home Screen of Spendly.
 ///
@@ -91,6 +92,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /// Navigates to the All Expenses history screen.
+  void _navigateToExpenses() {
+    if (widget.onNavigateToExpenses != null) {
+      widget.onNavigateToExpenses!();
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ExpensesScreen(expenseService: _expenseService),
+        ),
+      );
+    }
+  }
+
   /// Shows confirmation dialog before deleting an expense.
   Future<void> _confirmDelete(Expense expense) async {
     final confirmed = await showDialog<bool>(
@@ -169,12 +184,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
-          if (widget.onNavigateToExpenses != null)
-            IconButton(
-              tooltip: 'All Expenses',
-              icon: const Icon(Icons.history_rounded),
-              onPressed: widget.onNavigateToExpenses,
-            ),
+          IconButton(
+            tooltip: 'All Expenses',
+            icon: const Icon(Icons.history_rounded),
+            onPressed: _navigateToExpenses,
+          ),
         ],
       ),
       body: StreamBuilder<List<Expense>>(
@@ -285,10 +299,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Color(0xFF0F172A),
                       ),
                     ),
-                    if (monthExpenses.length > 5 &&
-                        widget.onNavigateToExpenses != null)
+                    if (monthExpenses.length > 5)
                       TextButton(
-                        onPressed: widget.onNavigateToExpenses,
+                        onPressed: _navigateToExpenses,
                         child: const Text('View All'),
                       ),
                   ],
