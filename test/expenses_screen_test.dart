@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:spendly/models/expense.dart';
 import 'package:spendly/screens/expenses_screen.dart';
 import 'package:spendly/services/expense_service.dart';
+import 'package:spendly/widgets/expense_card.dart';
 
 class MockExpensesScreenService extends ExpenseService {
   final List<Expense> expenses;
@@ -63,8 +64,8 @@ void main() {
       // Check expenses listed
       expect(find.text('Electricity Bill'), findsOneWidget);
       expect(find.text('Movie Tickets'), findsOneWidget);
-      expect(find.text('Bills'), findsOneWidget);
-      expect(find.text('Entertainment'), findsOneWidget);
+      expect(find.widgetWithText(ExpenseCard, 'Bills'), findsOneWidget);
+      expect(find.widgetWithText(ExpenseCard, 'Entertainment'), findsOneWidget);
     });
   });
 }
