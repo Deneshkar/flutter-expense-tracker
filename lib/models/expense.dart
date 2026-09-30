@@ -164,3 +164,27 @@ class ExpenseCategory {
     }
   }
 }
+
+/// Convenient calculation and filtering extensions on a List of expenses.
+extension ExpenseListX on List<Expense> {
+  /// Filters expenses belonging to the specified year and month.
+  List<Expense> filterByMonth(DateTime month) {
+    return where((e) => e.date.year == month.year && e.date.month == month.month)
+        .toList();
+  }
+
+  /// Calculates the total sum of all expense amounts in the list.
+  double get totalAmount {
+    return fold(0.0, (total, item) => total + item.amount);
+  }
+
+  /// Aggregates total spending grouped by category.
+  Map<String, double> get categoryTotals {
+    final Map<String, double> totals = {};
+    for (final exp in this) {
+      totals[exp.category] = (totals[exp.category] ?? 0.0) + exp.amount;
+    }
+    return totals;
+  }
+}
+

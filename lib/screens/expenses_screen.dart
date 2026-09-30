@@ -183,10 +183,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           }
 
           // 4. Calculate total sum across all records
-          final double totalSpent = expenses.fold(
-            0.0,
-            (sum, item) => sum + item.amount,
-          );
+          final double totalSpent = expenses.totalAmount;
 
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),

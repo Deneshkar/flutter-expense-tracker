@@ -266,23 +266,14 @@ class _HomeScreenState extends State<HomeScreen> {
           final allExpenses = snapshot.data ?? [];
 
           // 3. Filter expenses for the selected month
-          final monthExpenses = allExpenses.where((expense) {
-            return expense.date.year == _selectedMonth.year &&
-                expense.date.month == _selectedMonth.month;
-          }).toList();
+          final monthExpenses = allExpenses.filterByMonth(_selectedMonth);
 
           // 4. Calculate total spent in the selected month
-          final double totalSpent = monthExpenses.fold(
-            0.0,
-            (sum, item) => sum + item.amount,
-          );
+          final double totalSpent = monthExpenses.totalAmount;
 
           // 5. Calculate category spending summary for the selected month
-          final Map<String, double> categoryBreakdown = {};
-          for (final exp in monthExpenses) {
-            categoryBreakdown[exp.category] =
-                (categoryBreakdown[exp.category] ?? 0.0) + exp.amount;
-          }
+          final Map<String, double> categoryBreakdown =
+              monthExpenses.categoryTotals;
 
           // Recent expenses (up to 5 most recent)
           final recentExpenses = monthExpenses.take(5).toList();
@@ -529,7 +520,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 10),
         SizedBox(
-          height: 82,
+          height: 90,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: sortedCategories.length,
@@ -540,8 +531,9 @@ class _HomeScreenState extends State<HomeScreen> {
               final categoryIcon = ExpenseCategory.getIcon(entry.key);
 
               return Container(
-                width: 130,
-                padding: const EdgeInsets.all(12),
+                width: 140,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
