@@ -4,14 +4,17 @@ import '../models/expense.dart';
 /// A simple, beginner-friendly service to perform CRUD operations
 /// on Cloud Firestore for the 'expenses' collection.
 class ExpenseService {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore? firestore;
 
-  ExpenseService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  ExpenseService({this.firestore});
+
+  /// Returns the provided firestore instance or lazily defaults to FirebaseFirestore.instance.
+  FirebaseFirestore get _effectiveFirestore =>
+      firestore ?? FirebaseFirestore.instance;
 
   /// Reference to the 'expenses' collection in Firestore.
   CollectionReference<Map<String, dynamic>> get _expensesRef =>
-      _firestore.collection('expenses');
+      _effectiveFirestore.collection('expenses');
 
   /// Stream of all expenses sorted by date in descending order (latest first).
   ///

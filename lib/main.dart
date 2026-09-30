@@ -1,45 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'screens/home_screen.dart';
+import 'services/expense_service.dart';
+import 'theme/app_theme.dart';
 
 Future<void> main() async {
-  // 1. Ensure Flutter widget bindings are initialized before calling platform channels
+  // Ensure Flutter engine bindings are initialized before async calls
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Initialize Firebase native app
+  // Initialize Firebase native platform app
   try {
     await Firebase.initializeApp();
   } catch (e) {
     debugPrint('Firebase initialization notice: $e');
   }
 
-  // 3. Start the application
   runApp(const SpendlyApp());
 }
 
 class SpendlyApp extends StatelessWidget {
-  const SpendlyApp({super.key});
+  final ExpenseService? expenseService;
+
+  const SpendlyApp({super.key, this.expenseService});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Spendly — Expense Tracker',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2563EB), // Modern Royal Indigo/Blue
-          brightness: Brightness.light,
-        ),
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'Spendly — Expense Tracker\nFirebase Setup Ready',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ),
+      theme: AppTheme.lightTheme,
+      home: HomeScreen(expenseService: expenseService),
     );
   }
 }
