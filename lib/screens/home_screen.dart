@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Shows confirmation dialog before deleting an expense.
-  Future<void> _confirmDelete(Expense expense) async {
+  Future<bool> _confirmDelete(Expense expense) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -162,6 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         }
+        return true;
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -172,8 +173,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         }
+        return false;
       }
     }
+    return false;
   }
 
   @override
@@ -337,11 +340,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 else
                   ...recentExpenses.map(
-                    (expense) => ExpenseCard(
-                      expense: expense,
-                      onTap: () => _navigateToEditExpense(expense),
-                      onEdit: () => _navigateToEditExpense(expense),
-                      onDelete: () => _confirmDelete(expense),
+                    (expense) => Dismissible(
+                      key: Key('home_${expense.id}'),
+                      direction: DismissDirection.endToStart,
+                      confirmDismiss: (_) => _confirmDelete(expense),
+                      background: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Icon(Icons.delete_outline_rounded,
+                                color: Colors.white, size: 24),
+                            SizedBox(width: 8),
+                            Text(
+                              'Delete',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      child: ExpenseCard(
+                        expense: expense,
+                        onTap: () => _navigateToEditExpense(expense),
+                        onEdit: () => _navigateToEditExpense(expense),
+                        onDelete: () => _confirmDelete(expense),
+                      ),
                     ),
                   ),
               ],
