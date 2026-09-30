@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../services/expense_service.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/error_state.dart';
 import '../widgets/expense_card.dart';
+import '../widgets/loading_state.dart';
 import 'add_expense_screen.dart';
 import 'edit_expense_screen.dart';
 
@@ -25,6 +27,7 @@ class ExpensesScreen extends StatefulWidget {
 
 class _ExpensesScreenState extends State<ExpensesScreen> {
   late final ExpenseService _expenseService;
+  late Stream<List<Expense>> _expensesStream;
 
   // Search controller and query state
   final TextEditingController _searchController = TextEditingController();
@@ -38,6 +41,14 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   void initState() {
     super.initState();
     _expenseService = widget.expenseService ?? ExpenseService();
+    _expensesStream = _expenseService.getExpenses();
+  }
+
+  /// Retries fetching expenses when an error occurs.
+  void _retry() {
+    setState(() {
+      _expensesStream = _expenseService.getExpenses();
+    });
   }
 
   @override
@@ -174,53 +185,20 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
         ],
       ),
       body: StreamBuilder<List<Expense>>(
-        stream: _expenseService.getExpenses(),
+        stream: _expensesStream,
         builder: (context, snapshot) {
           // 1. Loading State
           if (snapshot.connectionState == ConnectionState.waiting &&
               !snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const LoadingState(message: 'Loading your expenses...');
           }
 
           // 2. Error State
           if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.error_outline_rounded,
-                      size: 56,
-                      color: Colors.redAccent,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Something went wrong',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Unable to load your expenses.',
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {});
-                      },
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('Try Again'),
-                    ),
-                  ],
-                ),
-              ),
+            return ErrorState(
+              message:
+                  'Unable to load your expenses. Please check your connection and try again.',
+              onRetry: _retry,
             );
           }
 
