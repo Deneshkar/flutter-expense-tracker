@@ -4,6 +4,7 @@ import '../models/expense.dart';
 import '../services/expense_service.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expense_card.dart';
+import 'add_expense_screen.dart';
 
 /// The primary Home Screen of Spendly.
 ///
@@ -73,6 +74,20 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _selectedMonth = DateTime(picked.year, picked.month);
       });
+    }
+  }
+
+  /// Navigates to the Add Expense screen.
+  void _navigateToAddExpense() {
+    if (widget.onNavigateToAddExpense != null) {
+      widget.onNavigateToAddExpense!();
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddExpenseScreen(expenseService: _expenseService),
+        ),
+      );
     }
   }
 
@@ -287,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     message:
                         'Start tracking your spending\nby adding your first expense.',
                     buttonText: 'Add Expense',
-                    onButtonPressed: widget.onNavigateToAddExpense,
+                    onButtonPressed: _navigateToAddExpense,
                   )
                 else
                   ...recentExpenses.map(
@@ -312,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: widget.onNavigateToAddExpense,
+        onPressed: _navigateToAddExpense,
         icon: const Icon(Icons.add_rounded),
         label: const Text(
           'Add Expense',
