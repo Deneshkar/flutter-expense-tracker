@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../services/expense_service.dart';
+import '../widgets/category_chart.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/error_state.dart';
 import '../widgets/expense_card.dart';
@@ -271,9 +272,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildTotalSpentCard(totalSpent, monthExpenses.length),
                 const SizedBox(height: 20),
 
-                // C. Category Summary (if expenses exist in this month)
+                // C. Category Expense Chart (if expenses exist in this month)
                 if (categoryBreakdown.isNotEmpty) ...[
-                  _buildCategorySummary(categoryBreakdown),
+                  CategoryChart(
+                    categoryTotals: categoryBreakdown,
+                    totalSpent: totalSpent,
+                  ),
                   const SizedBox(height: 24),
                 ],
 
@@ -479,82 +483,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  /// Compact category spending summary horizontally scrollable.
-  Widget _buildCategorySummary(Map<String, double> categoryBreakdown) {
-    final sortedCategories = categoryBreakdown.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Top Categories',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF64748B),
-          ),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 90,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: sortedCategories.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final entry = sortedCategories[index];
-              final categoryColor = ExpenseCategory.getColor(entry.key);
-              final categoryIcon = ExpenseCategory.getIcon(entry.key);
-
-              return Container(
-                width: 140,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(categoryIcon, size: 16, color: categoryColor),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            entry.key,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF0F172A),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      ExpenseCard.formatAmount(entry.value),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: categoryColor,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
 }
+
+

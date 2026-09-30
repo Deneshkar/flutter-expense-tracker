@@ -34,6 +34,7 @@ void main() {
     // Verify app title and content are displayed
     expect(find.text('Spendly'), findsOneWidget);
     expect(find.text('Total Spent'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Lunch'), 100);
     expect(find.text('Lunch'), findsOneWidget);
   });
 }
