@@ -8,7 +8,7 @@ import 'add_expense_screen.dart';
 import 'edit_expense_screen.dart';
 
 /// Screen displaying the complete history of all recorded expenses
-/// with category and date filtering options.
+/// with search, category, and date filtering options.
 class ExpensesScreen extends StatefulWidget {
   final ExpenseService? expenseService;
   final Function(Expense)? onEditExpense;
@@ -26,6 +26,10 @@ class ExpensesScreen extends StatefulWidget {
 class _ExpensesScreenState extends State<ExpensesScreen> {
   late final ExpenseService _expenseService;
 
+  // Search controller and query state
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   // Active filters
   String _selectedCategory = 'All';
   DateTime? _selectedDate;
@@ -34,6 +38,12 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   void initState() {
     super.initState();
     _expenseService = widget.expenseService ?? ExpenseService();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   /// Opens the Add Expense screen.
@@ -80,9 +90,11 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     }
   }
 
-  /// Resets all active filters to default (All categories, no date filter).
+  /// Resets search and all active filters to default.
   void _clearFilters() {
+    _searchController.clear();
     setState(() {
+      _searchQuery = '';
       _selectedCategory = 'All';
       _selectedDate = null;
     });
@@ -145,8 +157,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasActiveFilter =
-        _selectedCategory != 'All' || _selectedDate != null;
+    final hasActiveFilter = _selectedCategory != 'All' ||
+        _selectedDate != null ||
+        _searchQuery.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -213,15 +226,17 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 
           final allExpenses = snapshot.data ?? [];
 
-          // 3. Apply Category and Date Filters
+          // 3. Apply Filters and Search
           var filteredExpenses = allExpenses;
 
+          // Category Filter
           if (_selectedCategory != 'All') {
             filteredExpenses = filteredExpenses
                 .where((e) => e.category == _selectedCategory)
                 .toList();
           }
 
+          // Date Filter
           if (_selectedDate != null) {
             filteredExpenses = filteredExpenses.where((e) {
               return e.date.year == _selectedDate!.year &&
@@ -230,12 +245,22 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             }).toList();
           }
 
+          // Search Filter (by title or note, case-insensitive)
+          if (_searchQuery.isNotEmpty) {
+            final query = _searchQuery.toLowerCase();
+            filteredExpenses = filteredExpenses.where((e) {
+              final titleMatch = e.title.toLowerCase().contains(query);
+              final noteMatch = e.note.toLowerCase().contains(query);
+              return titleMatch || noteMatch;
+            }).toList();
+          }
+
           // 4. Calculate total sum of filtered list
           final double totalSpent = filteredExpenses.totalAmount;
 
           return Column(
             children: [
-              // A. Filter Controls Bar
+              // A. Search Field & Filter Controls Bar
               _buildFilterBar(),
 
               // B. Expenses List, Filtered Results, or Empty States
@@ -251,9 +276,10 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                     : filteredExpenses.isEmpty
                         ? EmptyState(
                             title: 'No matching expenses',
-                            message:
-                                'No expenses found for the selected filter.\nTry clearing or adjusting filters.',
-                            icon: Icons.filter_alt_off_rounded,
+                            message: _searchQuery.isNotEmpty
+                                ? 'No expenses match "$_searchQuery".\nTry checking for typos or clearing filters.'
+                                : 'No expenses match the selected filters.\nTry clearing or adjusting filters.',
+                            icon: Icons.search_off_rounded,
                             buttonText: 'Clear Filters',
                             onButtonPressed: _clearFilters,
                           )
@@ -355,7 +381,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     );
   }
 
-  /// Horizontal category filter chips and date selector bar.
+  /// Search bar, horizontal category filter chips, and date selector.
   Widget _buildFilterBar() {
     final categories = ['All', ...ExpenseCategory.all];
     final dateFormat = DateFormat('dd MMM yyyy');
@@ -366,9 +392,55 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Horizontal Category Filter Chips
+          // 1. Search Bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 2, 16, 10),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search expenses...',
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        tooltip: 'Clear search',
+                        icon: const Icon(Icons.clear_rounded, size: 18),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+                ),
+              ),
+              onChanged: (val) {
+                setState(() {
+                  _searchQuery = val.trim();
+                });
+              },
+            ),
+          ),
+
+          // 2. Horizontal Category Filter Chips
           SizedBox(
-            height: 40,
+            height: 38,
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
@@ -418,7 +490,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           ),
           const SizedBox(height: 8),
 
-          // 2. Date Filter and Clear Filter row
+          // 3. Date Filter and Clear Filter row
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -478,7 +550,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   ),
                 ],
                 const Spacer(),
-                if (_selectedCategory != 'All' || _selectedDate != null)
+                if (_selectedCategory != 'All' ||
+                    _selectedDate != null ||
+                    _searchQuery.isNotEmpty)
                   TextButton.icon(
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
