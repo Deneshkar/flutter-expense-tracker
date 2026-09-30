@@ -5,6 +5,7 @@ import '../services/expense_service.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expense_card.dart';
 import 'add_expense_screen.dart';
+import 'edit_expense_screen.dart';
 import 'expenses_screen.dart';
 
 /// The primary Home Screen of Spendly.
@@ -101,6 +102,23 @@ class _HomeScreenState extends State<HomeScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => ExpensesScreen(expenseService: _expenseService),
+        ),
+      );
+    }
+  }
+
+  /// Navigates to the Edit Expense screen.
+  void _navigateToEditExpense(Expense expense) {
+    if (widget.onEditExpense != null) {
+      widget.onEditExpense!(expense);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EditExpenseScreen(
+            expense: expense,
+            expenseService: _expenseService,
+          ),
         ),
       );
     }
@@ -321,16 +339,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ...recentExpenses.map(
                     (expense) => ExpenseCard(
                       expense: expense,
-                      onTap: () {
-                        if (widget.onEditExpense != null) {
-                          widget.onEditExpense!(expense);
-                        }
-                      },
-                      onEdit: () {
-                        if (widget.onEditExpense != null) {
-                          widget.onEditExpense!(expense);
-                        }
-                      },
+                      onTap: () => _navigateToEditExpense(expense),
+                      onEdit: () => _navigateToEditExpense(expense),
                       onDelete: () => _confirmDelete(expense),
                     ),
                   ),

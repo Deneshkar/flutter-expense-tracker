@@ -4,6 +4,7 @@ import '../services/expense_service.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expense_card.dart';
 import 'add_expense_screen.dart';
+import 'edit_expense_screen.dart';
 
 /// Screen displaying the complete history of all recorded expenses.
 class ExpensesScreen extends StatefulWidget {
@@ -37,6 +38,23 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
         builder: (context) => AddExpenseScreen(expenseService: _expenseService),
       ),
     );
+  }
+
+  /// Opens the Edit Expense screen.
+  void _navigateToEditExpense(Expense expense) {
+    if (widget.onEditExpense != null) {
+      widget.onEditExpense!(expense);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EditExpenseScreen(
+            expense: expense,
+            expenseService: _expenseService,
+          ),
+        ),
+      );
+    }
   }
 
   /// Shows confirmation dialog before deleting an expense.
@@ -206,16 +224,8 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               ...expenses.map(
                 (expense) => ExpenseCard(
                   expense: expense,
-                  onTap: () {
-                    if (widget.onEditExpense != null) {
-                      widget.onEditExpense!(expense);
-                    }
-                  },
-                  onEdit: () {
-                    if (widget.onEditExpense != null) {
-                      widget.onEditExpense!(expense);
-                    }
-                  },
+                  onTap: () => _navigateToEditExpense(expense),
+                  onEdit: () => _navigateToEditExpense(expense),
                   onDelete: () => _confirmDelete(expense),
                 ),
               ),

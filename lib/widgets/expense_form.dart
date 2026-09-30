@@ -37,7 +37,11 @@ class _ExpenseFormState extends State<ExpenseForm> {
 
     _titleController = TextEditingController(text: expense?.title ?? '');
     _amountController = TextEditingController(
-      text: expense != null ? expense.amount.toString() : '',
+      text: expense != null
+          ? (expense.amount % 1 == 0
+              ? expense.amount.toInt().toString()
+              : expense.amount.toString())
+          : '',
     );
     _noteController = TextEditingController(text: expense?.note ?? '');
 
