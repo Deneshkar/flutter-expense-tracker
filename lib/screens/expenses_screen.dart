@@ -250,76 +250,91 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           // 4. Calculate total sum of filtered list
           final double totalSpent = filteredExpenses.totalAmount;
 
-          return Column(
-            children: [
-              // A. Search Field & Filter Controls Bar
-              _buildFilterBar(),
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: Column(
+                children: [
+                  // A. Search Field & Filter Controls Bar
+                  _buildFilterBar(),
 
-              // B. Expenses List, Filtered Results, or Empty States
-              Expanded(
-                child: allExpenses.isEmpty
-                    ? EmptyState(
-                        title: 'No expenses yet',
-                        message:
-                            'Start tracking your spending\nby adding your first expense.',
-                        buttonText: 'Add Expense',
-                        onButtonPressed: _navigateToAddExpense,
-                      )
-                    : filteredExpenses.isEmpty
+                  // B. Expenses List, Filtered Results, or Empty States
+                  Expanded(
+                    child: allExpenses.isEmpty
                         ? EmptyState(
-                            title: 'No matching expenses',
-                            message: _searchQuery.isNotEmpty
-                                ? 'No expenses match "$_searchQuery".\nTry checking for typos or clearing filters.'
-                                : 'No expenses match the selected filters.\nTry clearing or adjusting filters.',
-                            icon: Icons.search_off_rounded,
-                            buttonText: 'Clear Filters',
-                            onButtonPressed: _clearFilters,
+                            title: 'No expenses yet',
+                            message:
+                                'Start tracking your spending\nby adding your first expense.',
+                            buttonText: 'Add Expense',
+                            onButtonPressed: _navigateToAddExpense,
                           )
-                        : ListView(
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-                            children: [
-                              // Summary Banner
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                margin: const EdgeInsets.only(bottom: 16),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .outlineVariant
-                                        .withValues(alpha: 0.5),
+                        : filteredExpenses.isEmpty
+                            ? EmptyState(
+                                title: 'No matching expenses',
+                                message: _searchQuery.isNotEmpty
+                                    ? 'No expenses match "$_searchQuery".\nTry checking for typos or clearing filters.'
+                                    : 'No expenses match the selected filters.\nTry clearing or adjusting filters.',
+                                icon: Icons.search_off_rounded,
+                                buttonText: 'Clear Filters',
+                                onButtonPressed: _clearFilters,
+                              )
+                            : ListView(
+                                padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+                                children: [
+                                  // Summary Banner
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outlineVariant
+                                            .withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            hasActiveFilter
+                                                ? '${filteredExpenses.length} ${filteredExpenses.length == 1 ? 'Record' : 'Records'} (Filtered)'
+                                                : '${filteredExpenses.length} Total Records',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF64748B),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Flexible(
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              ExpenseCard.formatAmount(totalSpent),
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF2563EB),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      hasActiveFilter
-                                          ? '${filteredExpenses.length} ${filteredExpenses.length == 1 ? 'Record' : 'Records'} (Filtered)'
-                                          : '${filteredExpenses.length} Total Records',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF64748B),
-                                      ),
-                                    ),
-                                    Text(
-                                      ExpenseCard.formatAmount(totalSpent),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2563EB),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
 
                               // Render items with swipe-to-delete
                               ...filteredExpenses.map(
@@ -364,8 +379,10 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                               ),
                             ],
                           ),
+                  ),
+                ],
               ),
-            ],
+            ),
           );
         },
       ),
@@ -501,80 +518,84 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           // 3. Date Filter and Clear Filter row
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                ActionChip(
-                  avatar: Icon(
-                    Icons.calendar_today_rounded,
-                    size: 14,
-                    color: _selectedDate != null
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurfaceVariant,
-                  ),
-                  label: Text(
-                    _selectedDate != null
-                        ? dateFormat.format(_selectedDate!)
-                        : 'Filter by Date',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: _selectedDate != null
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  ActionChip(
+                    avatar: Icon(
+                      Icons.calendar_today_rounded,
+                      size: 14,
                       color: _selectedDate != null
                           ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurface,
+                          : theme.colorScheme.onSurfaceVariant,
                     ),
-                  ),
-                  backgroundColor: _selectedDate != null
-                      ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                      : (isDark
-                          ? const Color(0xFF1E293B)
-                          : Colors.grey.shade100),
-                  side: BorderSide(
-                    color: _selectedDate != null
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.outlineVariant,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  onPressed: _pickDateFilter,
-                ),
-                if (_selectedDate != null) ...[
-                  const SizedBox(width: 8),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedDate = null;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 18,
-                        color: Colors.grey.shade600,
+                    label: Text(
+                      _selectedDate != null
+                          ? dateFormat.format(_selectedDate!)
+                          : 'Filter by Date',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: _selectedDate != null
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: _selectedDate != null
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurface,
                       ),
                     ),
-                  ),
-                ],
-                const Spacer(),
-                if (_selectedCategory != 'All' ||
-                    _selectedDate != null ||
-                    _searchQuery.isNotEmpty)
-                  TextButton.icon(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    backgroundColor: _selectedDate != null
+                        ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                        : (isDark
+                            ? const Color(0xFF1E293B)
+                            : Colors.grey.shade100),
+                    side: BorderSide(
+                      color: _selectedDate != null
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.outlineVariant,
                     ),
-                    onPressed: _clearFilters,
-                    icon: const Icon(Icons.clear_rounded, size: 14),
-                    label: const Text('Clear Filters',
-                        style: TextStyle(fontSize: 12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    onPressed: _pickDateFilter,
                   ),
-              ],
+                  if (_selectedDate != null) ...[
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedDate = null;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (_selectedCategory != 'All' ||
+                      _selectedDate != null ||
+                      _searchQuery.isNotEmpty) ...[
+                    const SizedBox(width: 16),
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      onPressed: _clearFilters,
+                      icon: const Icon(Icons.clear_rounded, size: 14),
+                      label: const Text('Clear Filters',
+                          style: TextStyle(fontSize: 12)),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ],

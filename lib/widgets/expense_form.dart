@@ -124,9 +124,13 @@ class _ExpenseFormState extends State<ExpenseForm> {
 
     return Form(
       key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
           // 1. Title Field
           TextFormField(
             controller: _titleController,
@@ -281,6 +285,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 }

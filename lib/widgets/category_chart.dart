@@ -55,37 +55,50 @@ class _CategoryChartState extends State<CategoryChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.pie_chart_rounded,
+                        size: 18,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.pie_chart_rounded,
-                      size: 18,
-                      color: theme.colorScheme.primary,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Spending by Category',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Spending by Category',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Text(
-                '${entries.length} ${entries.length == 1 ? 'Category' : 'Categories'}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: theme.colorScheme.onSurfaceVariant,
+              const SizedBox(width: 8),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '${entries.length} ${entries.length == 1 ? 'Category' : 'Categories'}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -158,13 +171,16 @@ class _CategoryChartState extends State<CategoryChart> {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        ExpenseCard.formatAmount(entries[_touchedIndex].value),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: ExpenseCategory.getColor(
-                              entries[_touchedIndex].key),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          ExpenseCard.formatAmount(entries[_touchedIndex].value),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: ExpenseCategory.getColor(
+                                entries[_touchedIndex].key),
+                          ),
                         ),
                       ),
                     ] else ...[
@@ -177,12 +193,15 @@ class _CategoryChartState extends State<CategoryChart> {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        ExpenseCard.formatAmount(widget.totalSpent),
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurface,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          ExpenseCard.formatAmount(widget.totalSpent),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ],
@@ -228,10 +247,13 @@ class _CategoryChartState extends State<CategoryChart> {
                       ),
                       child: Icon(categoryIcon, size: 14, color: categoryColor),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Expanded(
+                      flex: 3,
                       child: Text(
                         entry.key,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight:
@@ -240,21 +262,29 @@ class _CategoryChartState extends State<CategoryChart> {
                         ),
                       ),
                     ),
+                    const SizedBox(width: 6),
                     Text(
                       '${percentage.toStringAsFixed(1)}%',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      ExpenseCard.formatAmount(entry.value),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: categoryColor,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      flex: 2,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          ExpenseCard.formatAmount(entry.value),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: categoryColor,
+                          ),
+                        ),
                       ),
                     ),
                   ],
