@@ -57,13 +57,16 @@ class ExpenseService {
             return Expense.fromMap(doc.data(), doc.id);
           }).toList();
 
+          debugPrint(
+              '🔥 [Firebase Firestore] Synced: Loaded ${serverExpenses.length} expense(s) from cloud database.');
+
           _cachedExpenses
             ..clear()
             ..addAll(serverExpenses);
           _expensesController.add(List.unmodifiable(_cachedExpenses));
         },
         onError: (error) {
-          debugPrint('Firestore real-time sync notice: $error');
+          debugPrint('⚠️ [Firebase Firestore] Sync notice: $error');
           // If Firestore is offline or unauthenticated, maintain local cache
           if (!_expensesController.isClosed) {
             _expensesController.add(List.unmodifiable(_cachedExpenses));
@@ -71,7 +74,7 @@ class ExpenseService {
         },
       );
     } catch (e) {
-      debugPrint('Firestore listener initialization notice: $e');
+      debugPrint('⚠️ [Firebase Firestore] Listener initialization notice: $e');
       if (!_expensesController.isClosed) {
         _expensesController.add(List.unmodifiable(_cachedExpenses));
       }
@@ -106,12 +109,14 @@ class ExpenseService {
       await docRef.set(newExpense.toMap()).timeout(
         const Duration(seconds: 2),
         onTimeout: () {
-          debugPrint('Firestore write queued in background / offline.');
+          debugPrint(
+              'ℹ️ [Firebase Firestore] Document "${newExpense.id}" queued for background sync.');
         },
       );
+      debugPrint(
+          '🔥 [Firebase Firestore] SAVED: "${newExpense.title}" | Amount: Rs. ${newExpense.amount} | Category: ${newExpense.category} | Doc ID: ${newExpense.id}');
     } catch (e) {
-      debugPrint('Firestore background write notice: $e');
-      // Local state is already updated, so the user experience is smooth and unblocked.
+      debugPrint('ℹ️ [Firebase Firestore] Background write notice: $e');
     }
   }
 
@@ -134,11 +139,14 @@ class ExpenseService {
       await _expensesRef.doc(expense.id).update(expense.toMap()).timeout(
         const Duration(seconds: 2),
         onTimeout: () {
-          debugPrint('Firestore update queued in background / offline.');
+          debugPrint(
+              'ℹ️ [Firebase Firestore] Update for "${expense.id}" queued in background.');
         },
       );
+      debugPrint(
+          '🔥 [Firebase Firestore] UPDATED: "${expense.title}" | Amount: Rs. ${expense.amount} | Doc ID: ${expense.id}');
     } catch (e) {
-      debugPrint('Firestore background update notice: $e');
+      debugPrint('ℹ️ [Firebase Firestore] Background update notice: $e');
     }
   }
 
@@ -157,11 +165,14 @@ class ExpenseService {
       await _expensesRef.doc(expenseId).delete().timeout(
         const Duration(seconds: 2),
         onTimeout: () {
-          debugPrint('Firestore delete queued in background / offline.');
+          debugPrint(
+              'ℹ️ [Firebase Firestore] Delete for "$expenseId" queued in background.');
         },
       );
+      debugPrint(
+          '🔥 [Firebase Firestore] DELETED: Doc ID "$expenseId" removed from cloud.');
     } catch (e) {
-      debugPrint('Firestore background delete notice: $e');
+      debugPrint('ℹ️ [Firebase Firestore] Background delete notice: $e');
     }
   }
 
